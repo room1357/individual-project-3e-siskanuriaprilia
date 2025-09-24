@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart'; // Import LoginScreen
+import 'login_screen.dart'; // Import LoginScreen;
+import '../homescreens/profile_screen.dart';
+import '/homescreens/setting_screen.dart';
+import '/homescreens/about_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,9 +55,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     'Welcome User!',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -65,15 +69,32 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Profile'),
-              onTap: () => Navigator.pop(context),
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.pop(context); // tutup drawer dulu
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfileScreen(),
+                  ),
+                );
+              },
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () => Navigator.pop(context),
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context); // tutup drawer dulu
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
+              },
             ),
+
             Divider(),
             ListTile(
               leading: Icon(Icons.logout),
@@ -107,9 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('FAB clicked!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('FAB clicked!')));
         },
         child: Icon(Icons.add_shopping_cart),
       ),
@@ -120,8 +141,14 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
