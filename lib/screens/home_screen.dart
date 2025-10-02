@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart'; // Import LoginScreen;
-import '../homescreens/profile_screen.dart';
-import '/homescreens/setting_screen.dart';
-import '/homescreens/about_screen.dart';
+import 'profile_screen.dart';
+import 'setting_screen.dart';
+import 'about_screen.dart';
+import 'advance_expense_list_screen.dart';
+import 'category_screen.dart';
+import 'expense_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -94,11 +98,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-
+            ListTile(
+              leading: const Icon(Icons.money),
+              title: const Text('Expenses'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ExpenseScreen()),
+                );
+              },
+            ),
+              ListTile(
+              leading: const Icon(Icons.analytics),
+              title: const Text('Expenses Advanced'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AdvancedExpenseListScreen()),
+                );
+              },
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.logout),
-              title: Text(' '),
+              title: Text('Logout '),
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
