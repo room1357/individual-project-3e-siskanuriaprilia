@@ -3,34 +3,37 @@ import '../models/expense.dart';
 class LoopingExamples {
   // Contoh data bawaan
   static List<Expense> expenses = [
-    Expense(
+     Expense(
       id: 'e1',
-      title: 'Makan Siang',
-      description: 'Nasi goreng + teh',
-      amount: 25000,
-      category: 'Food',
+      title: 'Sarapan Pagi',
+      description: 'Nasi uduk + teh manis',
+      amount: 20000,
+      category: 'Makanan',
       date: DateTime.now(),
     ),
     Expense(
       id: 'e2',
-      title: 'Ngopi',
-      description: 'Kopi hitam',
+      title: 'Transportasi',
+      description: 'Grab',
       amount: 15000,
-      category: 'Food',
-      date: DateTime.now().subtract(const Duration(days: 1)),
+      category: 'Transportasi',
+      date: DateTime.now().subtract(Duration(days: 1)),
     ),
     Expense(
       id: 'e3',
-      title: 'Transportasi',
-      description: 'Naik Gojek',
-      amount: 30000,
-      category: 'Travel',
-      date: DateTime.now().subtract(const Duration(days: 2)),
-    ),
+      title: 'Nonton Film',
+      description: 'Bioskop + popcorn',
+      amount: 75000,
+      category: 'Hiburan',
+      date: DateTime.now().subtract(const Duration(days: 3)),
+  ),
   ];
 
-  // 1. Hitung total
+  // ===============================
+  // 1. Hitung Total dengan berbagai looping
+  // ===============================
 
+  // Traditional for loop
   static double calculateTotalTraditional(List<Expense> expenses) {
     double total = 0;
     for (int i = 0; i < expenses.length; i++) {
@@ -39,6 +42,7 @@ class LoopingExamples {
     return total;
   }
 
+  // For-in
   static double calculateTotalForIn(List<Expense> expenses) {
     double total = 0;
     for (Expense expense in expenses) {
@@ -47,6 +51,7 @@ class LoopingExamples {
     return total;
   }
 
+  // forEach
   static double calculateTotalForEach(List<Expense> expenses) {
     double total = 0;
     expenses.forEach((expense) {
@@ -55,17 +60,22 @@ class LoopingExamples {
     return total;
   }
 
+  // fold
   static double calculateTotalFold(List<Expense> expenses) {
     return expenses.fold(0, (sum, expense) => sum + expense.amount);
   }
 
+  // reduce
   static double calculateTotalReduce(List<Expense> expenses) {
     if (expenses.isEmpty) return 0;
     return expenses.map((e) => e.amount).reduce((a, b) => a + b);
   }
 
+  // ===============================
   // 2. Cari expense by ID
+  // ===============================
 
+  // Cara manual dengan for
   static Expense? findExpenseTraditional(List<Expense> expenses, String id) {
     for (int i = 0; i < expenses.length; i++) {
       if (expenses[i].id == id) {
@@ -75,6 +85,7 @@ class LoopingExamples {
     return null;
   }
 
+  // Dengan firstWhere
   static Expense? findExpenseWhere(List<Expense> expenses, String id) {
     try {
       return expenses.firstWhere((expense) => expense.id == id);
@@ -83,8 +94,11 @@ class LoopingExamples {
     }
   }
 
+  // ===============================
   // 3. Filter by category
+  // ===============================
 
+  // Manual pakai for-in
   static List<Expense> filterByCategoryManual(
       List<Expense> expenses, String category) {
     List<Expense> result = [];
@@ -96,6 +110,7 @@ class LoopingExamples {
     return result;
   }
 
+  // Dengan where
   static List<Expense> filterByCategoryWhere(
       List<Expense> expenses, String category) {
     return expenses
