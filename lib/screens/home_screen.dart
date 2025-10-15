@@ -6,6 +6,7 @@ import 'about_screen.dart';
 import 'advance_expense_list_screen.dart';
 import 'category_screen.dart';
 import 'expense_screen.dart';
+import 'add_expense_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {

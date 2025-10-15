@@ -1,26 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-// Model Expense
-class Expense {
-  final String title;
-  final String description;
-  final String category;
-  final double amount;
-  final DateTime date;
-
-  Expense({
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.amount,
-    required this.date,
-  });
-
-  String get formattedDate => DateFormat('dd MMM yyyy').format(date);
-  String get formattedAmount => 'Rp ${amount.toStringAsFixed(0)}';
-}
+import 'add_expense_screen.dart';
+import '../models/expense.dart'; // Pastikan pakai model Expense yang sama
 
 class AdvancedExpenseListScreen extends StatefulWidget {
   const AdvancedExpenseListScreen({super.key});
@@ -32,28 +13,32 @@ class AdvancedExpenseListScreen extends StatefulWidget {
 
 class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
   List<Expense> expenses = [
-    Expense(
-      title: 'Makan Siang',
-      description: 'Nasi goreng + es teh',
-      category: 'Makanan',
-      amount: 25000,
-      date: DateTime.now(),
-    ),
-    Expense(
-      title: 'Ojek Online',
-      description: 'Perjalanan ke kampus',
-      category: 'Transportasi',
-      amount: 15000,
-      date: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    Expense(
-      title: 'Streaming',
-      description: 'Langganan bulanan',
-      category: 'Hiburan',
-      amount: 50000,
-      date: DateTime.now().subtract(const Duration(days: 3)),
-    ),
-  ];
+  Expense(
+    id: DateTime.now().toString(), // <-- tambah id
+    title: 'Makan Siang',
+    description: 'Nasi goreng + es teh',
+    category: 'Makanan',
+    amount: 25000,
+    date: DateTime.now(),
+  ),
+  Expense(
+    id: DateTime.now().subtract(const Duration(days: 1)).toString(),
+    title: 'Ojek Online',
+    description: 'Perjalanan ke kampus',
+    category: 'Transportasi',
+    amount: 15000,
+    date: DateTime.now().subtract(const Duration(days: 1)),
+  ),
+  Expense(
+    id: DateTime.now().subtract(const Duration(days: 3)).toString(),
+    title: 'Streaming',
+    description: 'Langganan bulanan',
+    category: 'Hiburan',
+    amount: 50000,
+    date: DateTime.now().subtract(const Duration(days: 3)),
+  ),
+];
+
 
   List<Expense> filteredExpenses = [];
   String selectedCategory = 'Semua';
@@ -89,6 +74,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
               },
             ),
           ),
+          const SizedBox(height: 10),
 
           // Category filter
           SizedBox(
@@ -96,31 +82,28 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              children:
-                  [
-                        'Semua',
-                        'Makanan',
-                        'Transportasi',
-                        'Utilitas',
-                        'Hiburan',
-                        'Pendidikan',
-                      ]
-                      .map(
-                        (category) => Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(category),
-                            selected: selectedCategory == category,
-                            onSelected: (selected) {
-                              setState(() {
-                                selectedCategory = category;
-                                _filterExpenses();
-                              });
-                            },
-                          ),
-                        ),
-                      )
-                      .toList(),
+              children: [
+                'Semua',
+                'Makanan',
+                'Transportasi',
+                'Utilitas',
+                'Hiburan',
+                'Pendidikan',
+              ].map(
+                (category) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(category),
+                    selected: selectedCategory == category,
+                    onSelected: (selected) {
+                      setState(() {
+                        selectedCategory = category;
+                        _filterExpenses();
+                      });
+                    },
+                  ),
+                ),
+              ).toList(),
             ),
           ),
 
@@ -132,81 +115,86 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
               children: [
                 _buildStatCard('Total', _calculateTotal(filteredExpenses)),
                 _buildStatCard('Jumlah', '${filteredExpenses.length} item'),
-                _buildStatCard(
-                  'Rata-rata',
-                  _calculateAverage(filteredExpenses),
-                ),
+                _buildStatCard('Rata-rata', _calculateAverage(filteredExpenses)),
               ],
             ),
           ),
 
           // Expense list
           Expanded(
-            child:
-                filteredExpenses.isEmpty
-                    ? const Center(
-                      child: Text('Tidak ada pengeluaran ditemukan'),
-                    )
-                    : ListView.builder(
-                      itemCount: filteredExpenses.length,
-                      itemBuilder: (context, index) {
-                        final expense = filteredExpenses[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 4,
+            child: filteredExpenses.isEmpty
+                ? const Center(child: Text('Tidak ada pengeluaran ditemukan'))
+                : ListView.builder(
+                    itemCount: filteredExpenses.length,
+                    itemBuilder: (context, index) {
+                      final expense = filteredExpenses[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 4),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: _getCategoryColor(expense.category),
+                            child: Icon(
+                              _getCategoryIcon(expense.category),
+                              color: Colors.white,
+                            ),
                           ),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: _getCategoryColor(
-                                expense.category,
-                              ),
-                              child: Icon(
-                                _getCategoryIcon(expense.category),
-                                color: Colors.white,
-                              ),
-                            ),
-                            title: Text(expense.title),
-                            subtitle: Text(
-                              '${expense.category} • ${expense.formattedDate}',
-                            ),
-                            trailing: Text(
-                              expense.formattedAmount,
-                              style: TextStyle(
+                          title: Text(expense.title),
+                          subtitle: Text(
+                              '${expense.category} • ${DateFormat('dd MMM yyyy').format(expense.date)}'),
+                          trailing: Text(
+                            'Rp ${expense.amount.toStringAsFixed(0)}',
+                            style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red[600],
-                              ),
-                            ),
-                            onTap: () => _showExpenseDetails(context, expense),
+                                color: Colors.red[600]),
                           ),
-                        );
-                      },
-                    ),
+                          onTap: () => _showExpenseDetails(context, expense),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+  backgroundColor: Colors.blue,
+  child: const Icon(Icons.add),
+  onPressed: () {
+    print('FAB ditekan!');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddExpenseScreen(
+          onAddExpense: (Expense expense) {
+            setState(() {
+              expenses.add(expense);
+              _filterExpenses();
+                  });
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   void _filterExpenses() {
     setState(() {
-      filteredExpenses =
-          expenses.where((expense) {
-            bool matchesSearch =
-                searchController.text.isEmpty ||
-                expense.title.toLowerCase().contains(
-                  searchController.text.toLowerCase(),
-                ) ||
-                expense.description.toLowerCase().contains(
-                  searchController.text.toLowerCase(),
-                );
+      filteredExpenses = expenses.where((expense) {
+        bool matchesSearch = searchController.text.isEmpty ||
+            expense.title
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase()) ||
+            expense.description
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase());
 
-            bool matchesCategory =
-                selectedCategory == 'Semua' ||
-                expense.category == selectedCategory;
+        bool matchesCategory =
+            selectedCategory == 'Semua' || expense.category == selectedCategory;
 
-            return matchesSearch && matchesCategory;
-          }).toList();
+        return matchesSearch && matchesCategory;
+      }).toList();
     });
   }
 
@@ -231,7 +219,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
     if (expenses.isEmpty) return 'Rp 0';
     double average =
         expenses.fold(0.0, (sum, expense) => sum + expense.amount) /
-        expenses.length;
+            expenses.length;
     return 'Rp ${average.toStringAsFixed(0)}';
   }
 
@@ -272,26 +260,25 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
   void _showExpenseDetails(BuildContext context, Expense expense) {
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text(expense.title),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Kategori: ${expense.category}'),
-                Text('Deskripsi: ${expense.description}'),
-                Text('Tanggal: ${expense.formattedDate}'),
-                Text('Jumlah: ${expense.formattedAmount}'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Tutup'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: Text(expense.title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Kategori: ${expense.category}'),
+            Text('Deskripsi: ${expense.description}'),
+            Text('Tanggal: ${DateFormat('dd MMM yyyy').format(expense.date)}'),
+            Text('Jumlah: Rp ${expense.amount.toStringAsFixed(0)}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Tutup'),
+            onPressed: () => Navigator.pop(context),
           ),
+        ],
+      ),
     );
   }
 }
