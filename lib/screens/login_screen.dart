@@ -1,7 +1,37 @@
 import 'package:flutter/material.dart';
+import '../models/user.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void _login() {
+    String email = emailController.text.trim();
+    String password = passwordController.text;
+
+    final matchedUser = users.firstWhere(
+      (user) => user.email == email && user.password == password,
+      orElse: () => User(fullName: '', email: '', username: '', password: ''),
+    );
+
+    if (matchedUser.email.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selamat datang, ${matchedUser.fullName}!')),
+      );
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email atau password salah')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +40,6 @@ class LoginScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header Biru dengan Lengkungan
             Container(
               height: 220,
               width: double.infinity,
@@ -22,16 +51,10 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               child: const Center(
-                child: Icon(
-                  Icons.lock_outline,
-                  size: 80,
-                  color: Colors.white,
-                ),
+                child: Icon(Icons.lock_outline, size: 80, color: Colors.white),
               ),
             ),
-
             const SizedBox(height: 30),
-
             const Text(
               'Login',
               style: TextStyle(
@@ -40,16 +63,13 @@ class LoginScreen extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // Form Input
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Email
                   TextField(
+                    controller: emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
                       prefixIcon: const Icon(Icons.email),
@@ -61,9 +81,8 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Password
                   TextField(
+                    controller: passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -76,15 +95,11 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Tombol Login
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/home');
-                      },
+                      onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
@@ -101,10 +116,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Link ke Register
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

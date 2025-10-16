@@ -1,10 +1,8 @@
-// create models of user
-// with full name, email, password
 class User {
-  String fullName;
-  String email;
-  String username;
-  String password;
+  final String fullName;
+  final String email;
+  final String username;
+  final String password;
 
   User({
     required this.fullName,
@@ -14,12 +12,11 @@ class User {
   });
 }
 
-//create dummy users
-List<User> dummyUsers = [
+final List<User> users = [
   User(
-    fullName: "Siska Nuri Aprilia", 
-    email: "aprilias878@gmail.com",
-    username: "Siska",
-    password: "123",
+    fullName: 'Siska Nuri Aprilia',
+    email: 'aprilias878@gmail.com',
+    username: 'siska',
+    password: '123',
   ),
 ];
