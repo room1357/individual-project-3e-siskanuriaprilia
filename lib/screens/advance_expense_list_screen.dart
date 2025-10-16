@@ -5,6 +5,7 @@ import '../models/expense.dart'; // Pastikan pakai model Expense yang sama
 import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
 import 'category_expense.dart';
+import 'statistics_screen.dart';
 
 class AdvancedExpenseListScreen extends StatefulWidget {
   const AdvancedExpenseListScreen({super.key});
@@ -61,6 +62,20 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
         title: const Text('Pengeluaran Advanced'),
         backgroundColor: Colors.blue,
         actions: [
+           // Tombol Statistik
+    IconButton(
+      icon: const Icon(Icons.bar_chart),
+      tooltip: 'Lihat Statistik',
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StatisticsScreen(expenses: expenses),
+          ),
+        );
+      },
+    ),
+
           IconButton(
             icon: const Icon(Icons.category),
             tooltip: 'Kelola Kategori',
@@ -137,7 +152,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
               ],
             ),
           ),
-          
+
 
 // Expense list
 Expanded(
