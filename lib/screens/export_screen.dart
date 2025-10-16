@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,8 +6,6 @@ import 'package:csv/csv.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:open_filex/open_filex.dart';
 import '../utils/save_utils.dart';
-import 'package:path_provider/path_provider.dart';
-
 
 class ExportScreen extends StatelessWidget {
   final List<Expense> expenses;
@@ -87,6 +84,10 @@ class ExportScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('CSV berhasil disimpan')),
         );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('CSV berhasil di-download di Web')),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,21 +130,18 @@ class ExportScreen extends StatelessWidget {
         ),
       );
 
-      // PDF hanya bisa disimpan di Mobile/Desktop
+      final pdfBytes = await pdf.save();
+
+      // Gunakan savePDF universal
+      await savePDF(pdfBytes, 'pengeluaran.pdf');
+
       if (!kIsWeb) {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}/pengeluaran.pdf';
-        final file = File(path);
-        await file.writeAsBytes(await pdf.save());
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('PDF berhasil disimpan di $path')),
+          const SnackBar(content: Text('PDF berhasil disimpan di Mobile/Desktop')),
         );
-
-        await OpenFilex.open(path);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Export PDF belum support Web')),
+          const SnackBar(content: Text('PDF berhasil di-download di Web')),
         );
       }
     } catch (e) {
