@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'add_expense_screen.dart';
 import '../models/expense.dart'; // Pastikan pakai model Expense yang sama
+import 'add_expense_screen.dart';
+import 'edit_expense_screen.dart';
 
 class AdvancedExpenseListScreen extends StatefulWidget {
   const AdvancedExpenseListScreen({super.key});
@@ -120,37 +122,66 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
             ),
           ),
 
-          // Expense list
-          Expanded(
-            child: filteredExpenses.isEmpty
-                ? const Center(child: Text('Tidak ada pengeluaran ditemukan'))
-                : ListView.builder(
-                    itemCount: filteredExpenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = filteredExpenses[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: _getCategoryColor(expense.category),
-                            child: Icon(
-                              _getCategoryIcon(expense.category),
-                              color: Colors.white,
-                            ),
-                          ),
-                          title: Text(expense.title),
-                          subtitle: Text(
-                              '${expense.category} • ${DateFormat('dd MMM yyyy').format(expense.date)}'),
-                          trailing: Text(
-                            'Rp ${expense.amount.toStringAsFixed(0)}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red[600]),
-                          ),
-                          onTap: () => _showExpenseDetails(context, expense),
-                        ),
-                      );
+// Expense list
+Expanded(
+  child: filteredExpenses.isEmpty
+      ? const Center(child: Text('Tidak ada pengeluaran ditemukan'))
+      : ListView.builder(
+          itemCount: filteredExpenses.length,
+          itemBuilder: (context, index) {
+            final expense = filteredExpenses[index];
+return Card(
+  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+  child: ListTile(
+    leading: CircleAvatar(
+      backgroundColor: _getCategoryColor(expense.category),
+      child: Icon(
+        _getCategoryIcon(expense.category),
+        color: Colors.white,
+      ),
+    ),
+    title: Text(expense.title),
+    subtitle: Text(
+      '${expense.category} • ${DateFormat('dd MMM yyyy').format(expense.date)}',
+    ),
+    // Bagian trailing sudah diperbaiki
+    trailing: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Rp ${expense.amount.toStringAsFixed(0)}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red[600],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: const Icon(Icons.edit, color: Colors.blue, size: 20),
+              onPressed: () => _editExpense(expense),
+            ),
+            const SizedBox(width: 4),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+              onPressed: () => _deleteExpense(expense),
+            ),
+          ],
+        ),
+      ],
+    ),
+    onTap: () => _showExpenseDetails(context, expense),
+  ),
+);
+
                     },
                   ),
           ),
@@ -178,6 +209,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       ),
     );
   }
+  
 
   void _filterExpenses() {
     setState(() {
@@ -281,4 +313,52 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       ),
     );
   }
+  // ✏️ Edit pengeluaran
+  void _editExpense(Expense expense) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditExpenseScreen(
+          expense: expense,
+          onUpdateExpense: (updatedExpense) {
+            setState(() {
+              final index = expenses.indexWhere((e) => e.id == expense.id);
+              if (index != -1) {
+                expenses[index] = updatedExpense;
+                _filterExpenses();
+              }
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  // 🗑️ Hapus pengeluaran
+  void _deleteExpense(Expense expense) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Hapus Pengeluaran'),
+        content: const Text('Apakah kamu yakin ingin menghapus pengeluaran ini?'),
+        actions: [
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              setState(() {
+                expenses.removeWhere((e) => e.id == expense.id);
+                _filterExpenses();
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
+
