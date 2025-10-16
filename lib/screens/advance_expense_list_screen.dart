@@ -4,6 +4,7 @@ import 'add_expense_screen.dart';
 import '../models/expense.dart'; // Pastikan pakai model Expense yang sama
 import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
+import 'category_expense.dart';
 
 class AdvancedExpenseListScreen extends StatefulWidget {
   const AdvancedExpenseListScreen({super.key});
@@ -52,12 +53,26 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
     filteredExpenses = expenses;
   }
 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pengeluaran Advanced'),
         backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category),
+            tooltip: 'Kelola Kategori',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CategoryScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -77,6 +92,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
             ),
           ),
           const SizedBox(height: 10),
+
 
           // Category filter
           SizedBox(
@@ -121,6 +137,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
               ],
             ),
           ),
+          
 
 // Expense list
 Expanded(
