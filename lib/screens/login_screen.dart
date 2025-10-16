@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,7 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Selamat datang, ${matchedUser.fullName}!')),
       );
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(user: matchedUser),
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email atau password salah')),
@@ -122,9 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Text("Don't have an account?"),
                       TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/register');
-                        },
+                        onPressed: () {},
                         child: const Text(
                           'Register',
                           style: TextStyle(color: Colors.blue),

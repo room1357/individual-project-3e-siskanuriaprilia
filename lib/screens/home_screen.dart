@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart'; // Import LoginScreen;
+import '../models/user.dart';
 import 'profile_screen.dart';
-import 'setting_screen.dart';
-import 'about_screen.dart';
-import 'advance_expense_list_screen.dart';
-import 'category_screen.dart';
+import 'login_screen.dart';
 import 'expense_screen.dart';
-import 'add_expense_screen.dart';
-
+import 'advance_expense_list_screen.dart';
+import 'setting_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  User user; // mutable supaya bisa diupdate
+  HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -18,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-
   final List<String> _titles = ['Home', 'Favorites', 'Cart', 'Profile'];
 
   @override
@@ -31,14 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              // Logout ke LoginScreen
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (Route<dynamic> route) => false,
+                (route) => false,
               );
             },
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
           ),
         ],
       ),
@@ -47,55 +43,59 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
+              decoration: const BoxDecoration(color: Colors.blue),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 40, color: Colors.blue),
+                    child: const Icon(Icons.person, size: 40, color: Colors.blue),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
-                    'Welcome User!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    'Welcome ${widget.user.fullName}!',
+                    style: const TextStyle(
+                        color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    widget.user.email,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
-              onTap: () {
-                Navigator.pop(context); // tutup drawer dulu
-                Navigator.push(
+              onTap: () async {
+                Navigator.pop(context);
+                User? updatedUser = await Navigator.push<User>(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => ProfileScreen(user: widget.user)),
                 );
+                if (updatedUser != null) {
+                  setState(() {
+                    widget.user.fullName = updatedUser.fullName;
+                    widget.user.username = updatedUser.username;
+                    widget.user.email = updatedUser.email;
+                  });
+                }
               },
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.pop(context); // tutup drawer dulu
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
                 );
               },
             ),
@@ -103,31 +103,33 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.money),
               title: const Text('Expenses'),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ExpenseScreen()),
                 );
               },
             ),
-              ListTile(
+            ListTile(
               leading: const Icon(Icons.analytics),
               title: const Text('Expenses Advanced'),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AdvancedExpenseListScreen()),
+                  MaterialPageRoute(builder: (context) => const AdvancedExpenseListScreen()),
                 );
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout '),
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (Route<dynamic> route) => false,
+                  (route) => false,
                 );
               },
             ),
@@ -135,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: GridView.count(
           crossAxisCount: 2,
           crossAxisSpacing: 16,
@@ -152,27 +154,20 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('FAB clicked!')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('FAB clicked!')));
         },
-        child: Icon(Icons.add_shopping_cart),
+        child: const Icon(Icons.add_shopping_cart),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
@@ -183,20 +178,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Card(
       elevation: 4,
       child: InkWell(
-        onTap: () {
-          // Pesan saat card diklik
-        },
+        onTap: () {},
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: 48, color: color),
-              SizedBox(height: 12),
-              Text(
-                title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              const SizedBox(height: 12),
+              Text(title,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
         ),

@@ -40,6 +40,8 @@ dependencies:
   path_provider: ^2.1.2
   pdf: ^3.10.8
   open_filex: ^4.0.2
+  shared_preferences: ^2.1.1
+  
 
 
 dev_dependencies:
