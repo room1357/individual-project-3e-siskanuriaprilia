@@ -6,6 +6,7 @@ import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
 import 'category_expense.dart';
 import 'statistics_screen.dart';
+import 'export_screen.dart';
 
 class AdvancedExpenseListScreen extends StatefulWidget {
   const AdvancedExpenseListScreen({super.key});
@@ -71,6 +72,19 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => StatisticsScreen(expenses: expenses),
+          ),
+        );
+      },
+    ),
+     // Tombol Export
+    IconButton(
+      icon: const Icon(Icons.upload_file),
+      tooltip: 'Export Pengeluaran',
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ExportScreen(expenses: expenses),
           ),
         );
       },
