@@ -44,22 +44,23 @@ class ExpenseScreen extends StatelessWidget {
     Expense? highest = ExpenseManager.getHighestExpense(expenses);
     double avgDaily = ExpenseManager.getAverageDaily(expenses);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F2FA), // warna lembut
-      appBar: AppBar(
-  title: const Text(
-    "Expense Tracker",
-    style: TextStyle(
-      color: Colors.white,
-      fontWeight: FontWeight.bold,
+   return Scaffold(
+  backgroundColor: const Color(0xFFF7F2FA),
+  appBar: AppBar(
+    title: const Text(
+      'Expense Tracker',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.normal, // sama seperti di Settings
+        fontSize: 20,
+      ),
     ),
+    backgroundColor: Colors.blue, // sama dengan Settings
+    foregroundColor: Colors.white, // warna icon & teks
+    elevation: 2, // sedikit bayangan lembut
+    centerTitle: false,
   ),
-  backgroundColor: Colors.blueAccent,
-  elevation: 3,
-  centerTitle: false,
-  iconTheme: const IconThemeData(color: Colors.white),
-  foregroundColor: Colors.white, // 🩵 penting agar icon ikut warna putih
-),
+  // ... lanjut isi body di bawah sini
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),

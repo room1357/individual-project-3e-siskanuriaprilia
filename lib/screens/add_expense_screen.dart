@@ -4,6 +4,7 @@ import '../models/category.dart';
 import '../models/expense.dart';
 import 'advance_expense_list_screen.dart';
 import 'home_screen.dart';
+import '../utils/expense_manager.dart';
 
 
 class AddExpenseScreen extends StatefulWidget {
@@ -30,7 +31,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     'Pendidikan',
   ];
 
-  void _submitData() {
+  Future<void> _submitData() async {
+
     if (_titleController.text.isEmpty ||
         _amountController.text.isEmpty ||
         double.tryParse(_amountController.text) == null) {
@@ -46,9 +48,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       date: _selectedDate,
     );
 
-    widget.onAddExpense(newExpense);
-    Navigator.pop(context); // balik ke Home setelah tambah
-  }
+   // ✅ Simpan ke manager global
+  await ExpenseManager.addExpense(newExpense);
+
+  // juga panggil callback agar list di AdvancedExpenseListScreen ikut update
+  widget.onAddExpense(newExpense);
+
+  Navigator.pop(context);
+}
 
   void _pickDate() async {
     final pickedDate = await showDatePicker(
