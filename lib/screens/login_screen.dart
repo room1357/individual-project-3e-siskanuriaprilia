@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
+import '../utils/user_manager.dart';
+import 'register_screen.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,12 +19,9 @@ class _LoginScreenState extends State<LoginScreen> {
     String email = emailController.text.trim();
     String password = passwordController.text;
 
-    final matchedUser = users.firstWhere(
-      (user) => user.email == email && user.password == password,
-      orElse: () => User(fullName: '', email: '', username: '', password: ''),
-    );
+    User? matchedUser = UserManager.login(email, password);
 
-    if (matchedUser.email.isNotEmpty) {
+    if (matchedUser != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Selamat datang, ${matchedUser.fullName}!')),
       );
@@ -33,9 +32,15 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email atau password salah')),
-      );
+      if (UserManager.emailExists(email)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Password salah!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User belum terdaftar, silakan register dulu!')),
+        );
+      }
     }
   }
 
@@ -128,7 +133,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Text("Don't have an account?"),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                          );
+                        },
                         child: const Text(
                           'Register',
                           style: TextStyle(color: Colors.blue),

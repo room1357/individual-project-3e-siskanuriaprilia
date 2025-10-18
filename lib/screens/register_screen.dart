@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '/models/user.dart'; // Impor model dan list users
+import '../models/user.dart';
+import '../utils/user_manager.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -37,15 +38,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    if (users.any((user) => user.username == username)) {
+    if (UserManager.usernameExists(username)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username sudah digunakan!'), backgroundColor: Colors.red),
       );
       return;
     }
 
+    if (UserManager.emailExists(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email sudah digunakan!'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
     // Tambahkan user baru
-    users.add(User(
+    UserManager.addUser(User(
       fullName: fullName,
       email: email,
       username: username,
@@ -83,7 +91,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Header lingkaran biru dengan ikon
               Container(
                 width: 120,
                 height: 120,
@@ -96,14 +103,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              // Title
               const Text(
                 'Register',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               const SizedBox(height: 24),
-
-              // TextFields
               TextField(
                 controller: _fullNameController,
                 decoration: InputDecoration(
@@ -161,8 +165,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Register Button
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -179,8 +181,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Link login
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

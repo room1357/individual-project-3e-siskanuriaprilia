@@ -23,16 +23,12 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
   String selectedCategory = 'Semua';
   TextEditingController searchController = TextEditingController();
 
-  double totalAmount = 0;
-  double averageAmount = 0;
-
   @override
   void initState() {
     super.initState();
     _loadExpenses();
   }
 
-  // 🔹 Muat data dari SharedPreferences
   Future<void> _loadExpenses() async {
     final prefs = await SharedPreferences.getInstance();
     final String? expenseData = prefs.getString('expenses');
@@ -42,10 +38,8 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       setState(() {
         expenses = decoded.map((e) => Expense.fromJson(e)).toList();
         filteredExpenses = expenses;
-        _updateStats();
       });
     } else {
-      // Data awal jika belum ada yang disimpan
       expenses = [
         Expense(
           id: DateTime.now().toString(),
@@ -74,11 +68,9 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       ];
       filteredExpenses = expenses;
       _saveExpenses();
-      _updateStats();
     }
   }
 
-  // 🔹 Simpan data ke SharedPreferences
   Future<void> _saveExpenses() async {
     final prefs = await SharedPreferences.getInstance();
     List<Map<String, dynamic>> expenseList =
@@ -86,44 +78,23 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
     await prefs.setString('expenses', jsonEncode(expenseList));
   }
 
-  // 🔹 Hitung ulang total dan rata-rata
-  void _updateStats() {
-    if (filteredExpenses.isEmpty) {
-      totalAmount = 0;
-      averageAmount = 0;
-    } else {
-      totalAmount =
-          filteredExpenses.fold(0, (sum, e) => sum + e.amount);
-      averageAmount = totalAmount / filteredExpenses.length;
-    }
-  }
-
-  void _filterExpenses() {
-    setState(() {
-      filteredExpenses = expenses.where((expense) {
-        bool matchesSearch = searchController.text.isEmpty ||
-            expense.title
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase()) ||
-            expense.description
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase());
-
-        bool matchesCategory =
-            selectedCategory == 'Semua' || expense.category == selectedCategory;
-
-        return matchesSearch && matchesCategory;
-      }).toList();
-      _updateStats(); // ✅ Hitung ulang setiap kali filter berubah
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2FA),
       appBar: AppBar(
-        title: const Text('Pengeluaran Advanced'),
+        title: const Text(
+          'Pengeluaran Advanced',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.normal,
+            fontSize: 20,
+          ),
+        ),
         backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.bar_chart),
@@ -165,7 +136,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       ),
       body: Column(
         children: [
-          // 🔍 Search bar
+          // Search bar
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -179,7 +150,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
             ),
           ),
 
-          // 🔹 Filter kategori
+          // Filter kategori
           SizedBox(
             height: 50,
             child: ListView(
@@ -210,21 +181,20 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
             ),
           ),
 
-          // 🔹 Statistik ringkas (selalu update)
+          // Statistik ringkas
           Container(
             padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatCard('Total', 'Rp ${totalAmount.toStringAsFixed(0)}'),
+                _buildStatCard('Total', _calculateTotal(filteredExpenses)),
                 _buildStatCard('Jumlah', '${filteredExpenses.length} item'),
-                _buildStatCard(
-                    'Rata-rata', 'Rp ${averageAmount.toStringAsFixed(0)}'),
+                _buildStatCard('Rata-rata', _calculateAverage(filteredExpenses)),
               ],
             ),
           ),
 
-          // 🔹 Daftar pengeluaran
+          // Daftar pengeluaran
           Expanded(
             child: filteredExpenses.isEmpty
                 ? const Center(child: Text('Tidak ada pengeluaran ditemukan'))
@@ -236,56 +206,71 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                       return Card(
                         margin: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 4),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor:
-                                _getCategoryColor(expense.category),
-                            child: Icon(
-                              _getCategoryIcon(expense.category),
-                              color: Colors.white,
-                            ),
-                          ),
-                          title: Text(expense.title),
-                          subtitle: Text(
-                            '${expense.category} • ${DateFormat('dd MMM yyyy').format(expense.date)}',
-                          ),
-                          // ✅ Fix Overflow di trailing
-                          trailing: SizedBox(
-                            height: 60,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Rp ${expense.amount.toStringAsFixed(0)}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red[600],
-                                  ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor:
+                                    _getCategoryColor(expense.category),
+                                child: Icon(
+                                  _getCategoryIcon(expense.category),
+                                  color: Colors.white,
                                 ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.edit,
-                                          color: Colors.blue, size: 18),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () => _editExpense(expense),
+                                    Text(
+                                      expense.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.red, size: 18),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () => _deleteExpense(expense),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${expense.category} • ${DateFormat('dd MMM yyyy').format(expense.date)}',
+                                      style:
+                                          const TextStyle(color: Colors.grey),
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${expense.amount.toStringAsFixed(0)}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red[600],
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue, size: 20),
+                                        onPressed: () =>
+                                            _editExpense(expense),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red, size: 20),
+                                        onPressed: () =>
+                                            _deleteExpense(expense),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          onTap: () => _showExpenseDetails(context, expense),
                         ),
                       );
                     },
@@ -305,7 +290,6 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                   setState(() {
                     expenses.add(expense);
                     _filterExpenses();
-                    _updateStats(); // ✅ langsung update statistik
                   });
                   _saveExpenses();
                 },
@@ -315,6 +299,26 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
         },
       ),
     );
+  }
+
+  void _filterExpenses() {
+    setState(() {
+      filteredExpenses = expenses.where((expense) {
+        bool matchesSearch = searchController.text.isEmpty ||
+            expense.title
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase()) ||
+            expense.description
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase());
+
+        bool matchesCategory =
+            selectedCategory == 'Semua' ||
+            expense.category == selectedCategory;
+
+        return matchesSearch && matchesCategory;
+      }).toList();
+    });
   }
 
   Widget _buildStatCard(String label, String value) {
@@ -327,6 +331,19 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
         ),
       ],
     );
+  }
+
+  String _calculateTotal(List<Expense> expenses) {
+    double total = expenses.fold(0, (sum, expense) => sum + expense.amount);
+    return 'Rp ${total.toStringAsFixed(0)}';
+  }
+
+  String _calculateAverage(List<Expense> expenses) {
+    if (expenses.isEmpty) return 'Rp 0';
+    double average =
+        expenses.fold(0.0, (sum, expense) => sum + expense.amount) /
+            expenses.length;
+    return 'Rp ${average.toStringAsFixed(0)}';
   }
 
   IconData _getCategoryIcon(String category) {
@@ -400,7 +417,6 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
               if (index != -1) {
                 expenses[index] = updatedExpense;
                 _filterExpenses();
-                _updateStats(); // ✅ update ulang
               }
             });
             _saveExpenses();
@@ -428,7 +444,6 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
               setState(() {
                 expenses.removeWhere((e) => e.id == expense.id);
                 _filterExpenses();
-                _updateStats(); // ✅ update ulang setelah hapus
               });
               _saveExpenses();
               Navigator.pop(context);
