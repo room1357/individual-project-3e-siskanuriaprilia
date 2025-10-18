@@ -280,6 +280,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
+         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(

@@ -33,10 +33,23 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Category Management'),
+    
+   return Scaffold(
+  backgroundColor: const Color(0xFFF7F2FA),
+  appBar: AppBar(
+    title: const Text(
+      'Category Management',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.normal, // sama seperti di Settings
+        fontSize: 20,
       ),
+    ),
+    backgroundColor: Colors.blue, // sama dengan Settings
+    foregroundColor: Colors.white, // warna icon & teks
+    elevation: 2, // sedikit bayangan lembut
+    centerTitle: false,
+  ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

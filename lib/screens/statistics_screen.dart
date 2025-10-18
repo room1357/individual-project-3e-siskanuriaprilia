@@ -13,11 +13,23 @@ class StatisticsScreen extends StatelessWidget {
     final grouped = _groupExpensesByCategory(expenses);
     final total = grouped.values.fold(0.0, (a, b) => a + b);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Statistik Pengeluaran'),
-        backgroundColor: Colors.blue,
+   
+   return Scaffold(
+  backgroundColor: const Color(0xFFF7F2FA),
+  appBar: AppBar(
+    title: const Text(
+      'Statistik Pengeluaran',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.normal, // sama seperti di Settings
+        fontSize: 20,
       ),
+    ),
+    backgroundColor: Colors.blue, // sama dengan Settings
+    foregroundColor: Colors.white, // warna icon & teks
+    elevation: 2, // sedikit bayangan lembut
+    centerTitle: false,
+  ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

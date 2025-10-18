@@ -51,84 +51,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
         emailController.text != widget.user.email;
   }
 
-  Future<void> _confirmSave() async {
-    if (!_hasChanges()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada perubahan untuk disimpan.')),
-      );
-      return;
-    }
+        Future<void> _confirmSave() async {
+          if (!_hasChanges()) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tidak ada perubahan untuk disimpan.')),
+            );
+            return;
+          }
 
-    bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Konfirmasi Simpan',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: const Text('Apakah Anda yakin ingin menyimpan perubahan ini?'),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade600,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+          bool? confirm = await showDialog<bool>(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text(
+                'Konfirmasi Simpan',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              content: const Text('Apakah Anda yakin ingin menyimpan perubahan ini?'),
+              actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    foregroundColor: Colors.white, // <-- teks putih
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text('Simpan'),
+                ),
+              ],
             ),
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
+          );
 
-    if (confirm == true) _saveUser();
-  }
+          if (confirm == true) _saveUser();
+        }
 
-  Future<void> _confirmLogout() async {
-    bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Konfirmasi Logout',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: const Text('Apakah Anda yakin ingin logout dari akun ini?'),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade400,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+        Future<void> _confirmLogout() async {
+          bool? confirm = await showDialog<bool>(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text(
+                'Konfirmasi Logout',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              content: const Text('Apakah Anda yakin ingin logout dari akun ini?'),
+              actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade400,
+                    foregroundColor: Colors.white, // <-- teks putih
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text('Logout'),
+                ),
+              ],
             ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
+          );
 
-    if (confirm == true) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false,
-      );
-    }
-  }
+          if (confirm == true) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
+          }
+        }
+
 
   Future<void> _saveUser() async {
     final prefs = await SharedPreferences.getInstance();
@@ -163,11 +166,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: TextField(
         controller: controller,
         obscureText: obscure,
+        cursorColor: Colors.blue,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: Colors.white, // Kotak tetap putih
           prefixIcon: label == "Email"
               ? const Icon(Icons.email)
               : label == "Password"
@@ -184,17 +188,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F2FA),
-      appBar: AppBar(
-        title: const Text(
-          'Profil Pengguna',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        backgroundColor: Colors.blue,
-        elevation: 2,
-        centerTitle: false,
+    
+   return Scaffold(
+  backgroundColor: const Color(0xFFF7F2FA),
+  appBar: AppBar(
+    title: const Text(
+      'Profil Pengguna',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.normal, // sama seperti di Settings
+        fontSize: 20,
       ),
+    ),
+    backgroundColor: Colors.blue, // sama dengan Settings
+    foregroundColor: Colors.white, // warna icon & teks
+    elevation: 2, // sedikit bayangan lembut
+    centerTitle: false,
+  ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -219,29 +229,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Ketuk avatar untuk mengganti foto',
-              style: TextStyle(color: Colors.black54, fontSize: 14),
-            ),
             const SizedBox(height: 30),
             _buildTextField('Nama', nameController),
             _buildTextField('Username', usernameController),
             _buildTextField('Email', emailController),
             const SizedBox(height: 30),
-            Row(
+         Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _confirmSave,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade600,
+                      foregroundColor: Colors.white, // <- memastikan teks putih
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 3,
                     ),
                     child: const Text(
                       'Simpan Perubahan',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -251,14 +258,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: _confirmLogout,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red.shade400,
+                      foregroundColor: Colors.white, // <- memastikan teks putih
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 3,
                     ),
                     child: const Text(
                       'Logout',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                   ),
                 ),
               ],
