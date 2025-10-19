@@ -1,32 +1,15 @@
-import 'dart:io' show File;
+// lib/utils/save_utils.dart
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:path_provider/path_provider.dart';
-import 'download_csv.dart';
-import 'download_pdf.dart';
+import 'download_pdf.dart'; // conditional export
 
-/// ===================== SAVE CSV =====================
+/// Simpel wrapper — panggil fungsi ini dari UI.
+/// Contoh: await saveCSV(csvData, 'pengeluaran.csv');
 Future<void> saveCSV(String csv, String filename) async {
-  if (kIsWeb) {
-    downloadCSV(csv, filename);
-  } else {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/$filename';
-    final file = File(path);
-    await file.writeAsString(csv);
-    print('CSV berhasil disimpan di $path');
-  }
+  await downloadCSV(csv, filename);
 }
 
-/// ===================== SAVE PDF =====================
+/// Simpel wrapper — panggil fungsi ini dari UI.
+/// Contoh: await savePDF(pdfBytes, 'pengeluaran.pdf');
 Future<void> savePDF(Uint8List pdfBytes, String filename) async {
-  if (kIsWeb) {
-    downloadPDF(pdfBytes, filename);
-  } else {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/$filename';
-    final file = File(path);
-    await file.writeAsBytes(pdfBytes);
-    print('PDF berhasil disimpan di $path');
-  }
+  await downloadPDF(pdfBytes, filename);
 }

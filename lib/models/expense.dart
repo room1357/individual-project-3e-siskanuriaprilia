@@ -1,6 +1,3 @@
-import 'package:intl/intl.dart';
-import 'category.dart'; // Import model Category
-
 class Expense {
   final String id;
   final String title;
@@ -8,6 +5,7 @@ class Expense {
   final double amount;
   final String category;
   final DateTime date;
+  final List<String> sharedWith; // 🔹 Shared Expenses
 
   Expense({
     required this.id,
@@ -16,22 +14,8 @@ class Expense {
     required this.amount,
     required this.category,
     required this.date,
+    this.sharedWith = const [], // default kosong
   });
-
-  // 🔹 Format tanggal agar rapi di tampilan
-  String get formattedDate {
-    return DateFormat('dd MMM yyyy').format(date);
-  }
-
-  // 🔹 Format nominal dalam Rupiah
-  String get formattedAmount {
-    final formatCurrency = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    return formatCurrency.format(amount);
-  }
 
   factory Expense.fromJson(Map<String, dynamic> json) {
     return Expense(
@@ -41,6 +25,9 @@ class Expense {
       category: json['category'],
       amount: (json['amount'] as num).toDouble(),
       date: DateTime.parse(json['date']),
+      sharedWith: json['sharedWith'] != null
+          ? List<String>.from(json['sharedWith'])
+          : [],
     );
   }
 
@@ -52,7 +39,7 @@ class Expense {
       'category': category,
       'amount': amount,
       'date': date.toIso8601String(),
+      'sharedWith': sharedWith,
     };
   }
 }
-

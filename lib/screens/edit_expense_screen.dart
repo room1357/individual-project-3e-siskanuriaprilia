@@ -21,6 +21,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   late TextEditingController amountController;
   late String selectedCategory;
   late DateTime selectedDate;
+  List<String> selectedUsers = [];
 
   final List<String> categories = [
     'Makanan',
@@ -29,6 +30,8 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     'Hiburan',
     'Pendidikan',
   ];
+
+  final List<String> users = ['Siska', 'Budi', 'Ani', 'Rina'];
 
   @override
   void initState() {
@@ -40,6 +43,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
         TextEditingController(text: widget.expense.amount.toString());
     selectedCategory = widget.expense.category;
     selectedDate = widget.expense.date;
+    selectedUsers = List<String>.from(widget.expense.sharedWith);
   }
 
   @override
@@ -58,10 +62,21 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       category: selectedCategory,
       amount: double.tryParse(amountController.text) ?? 0,
       date: selectedDate,
+      sharedWith: selectedUsers,
     );
 
     widget.onUpdateExpense(updatedExpense);
     Navigator.pop(context);
+  }
+
+  void _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) setState(() => selectedDate = picked);
   }
 
   @override
@@ -89,15 +104,10 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
               value: selectedCategory,
               decoration: const InputDecoration(labelText: 'Kategori'),
               items: categories
-                  .map((c) => DropdownMenuItem(
-                        value: c,
-                        child: Text(c),
-                      ))
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                   .toList(),
               onChanged: (value) {
-                setState(() {
-                  selectedCategory = value!;
-                });
+                setState(() => selectedCategory = value!);
               },
             ),
             const SizedBox(height: 10),
@@ -110,25 +120,28 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Tanggal: ${selectedDate.toLocal().toString().split(' ')[0]}',
-                ),
+                Text('Tanggal: ${selectedDate.toLocal().toString().split(' ')[0]}'),
                 TextButton(
+                  onPressed: _pickDate,
                   child: const Text('Pilih Tanggal'),
-                  onPressed: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (picked != null) {
-                      setState(() => selectedDate = picked);
-                    }
-                  },
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            const Text('Bagikan dengan:'),
+            ...users.map((user) => CheckboxListTile(
+                  title: Text(user),
+                  value: selectedUsers.contains(user),
+                  onChanged: (val) {
+                    setState(() {
+                      if (val == true) {
+                        selectedUsers.add(user);
+                      } else {
+                        selectedUsers.remove(user);
+                      }
+                    });
+                  },
+                )),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveExpense,

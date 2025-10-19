@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
-import '../utils/expense_manager.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   final Function(Expense) onAddExpense;
@@ -26,6 +25,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     'Pendidikan',
   ];
 
+  // 🔹 Daftar user untuk Shared Expenses
+  final List<String> _users = ['Siska', 'Budi', 'Ani', 'Rina'];
+  List<String> _selectedUsers = [];
+
   Future<void> _submitData() async {
     if (_titleController.text.isEmpty ||
         _amountController.text.isEmpty ||
@@ -43,9 +46,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       amount: double.parse(_amountController.text),
       category: _selectedCategory,
       date: _selectedDate,
+      sharedWith: _selectedUsers, // 🔹 Shared Expenses
     );
 
-    await ExpenseManager.addExpense(newExpense);
     widget.onAddExpense(newExpense);
     Navigator.pop(context);
   }
@@ -58,76 +61,83 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       lastDate: DateTime(2100),
     );
     if (pickedDate != null) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
+      setState(() => _selectedDate = pickedDate);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-return Scaffold(
-  appBar: AppBar(
-    title: const Text('Tambah Pengeluaran'),
-    backgroundColor: Colors.blue,
-    foregroundColor: Colors.white, // Tulisan dan panah back jadi putih
-  ),
-  body: Padding(
-    padding: const EdgeInsets.all(16),
-    child: ListView(
-      children: [
-        TextField(
-          controller: _titleController,
-          decoration: const InputDecoration(labelText: 'Judul'),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _descriptionController,
-          decoration: const InputDecoration(labelText: 'Deskripsi'),
-        ),
-        const SizedBox(height: 10),
-        DropdownButtonFormField<String>(
-          value: _selectedCategory,
-          decoration: const InputDecoration(labelText: 'Kategori'),
-          items: _categories
-              .map((c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  ))
-              .toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedCategory = value!;
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Jumlah (Rp)'),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tambah Pengeluaran'),
+        backgroundColor: Colors.blue,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView(
           children: [
-            Text('Tanggal: ${_selectedDate.toLocal().toString().split(' ')[0]}'),
-            TextButton(
-              onPressed: _pickDate,
-              child: const Text('Pilih Tanggal'),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Judul'),
             ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: _submitData,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-          child: const Text(
-            'Simpan',
-            style: TextStyle(color: Colors.white),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: 'Deskripsi'),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: _selectedCategory,
+              decoration: const InputDecoration(labelText: 'Kategori'),
+              items: _categories
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() => _selectedCategory = value!);
+              },
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Jumlah (Rp)'),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Tanggal: ${_selectedDate.toLocal().toString().split(' ')[0]}'),
+                TextButton(
+                  onPressed: _pickDate,
+                  child: const Text('Pilih Tanggal'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            const Text('Bagikan dengan:'),
+            ..._users.map((user) => CheckboxListTile(
+                  title: Text(user),
+                  value: _selectedUsers.contains(user),
+                  onChanged: (val) {
+                    setState(() {
+                      if (val == true) {
+                        _selectedUsers.add(user);
+                      } else {
+                        _selectedUsers.remove(user);
+                      }
+                    });
+                  },
+                )),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submitData,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text(
+                'Simpan',
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ],
