@@ -1,27 +1,27 @@
 class Category {
   final String id;
   final String name;
-  final String icon; // emoji atau string
+  final String icon; // bisa string emoji atau nama asset
 
   Category({
     required this.id,
     required this.name,
-    required this.icon,
+    this.icon = '📌',
   });
 
-  Map<String, dynamic> toMap() {
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      icon: json['icon'] as String? ?? '📌',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'icon': icon,
     };
-  }
-
-  factory Category.fromMap(Map<String, dynamic> map) {
-    return Category(
-      id: map['id']?.toString() ?? '',
-      name: map['name']?.toString() ?? 'Unknown',
-      icon: map['icon']?.toString() ?? '',
-    );
   }
 }

@@ -10,10 +10,11 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
   final TextEditingController _categoryController = TextEditingController();
   final List<String> _categories = [
-    'Makanan',
-    'Transportasi',
-    'Belanja',
-    'Tagihan',
+                'Makanan',
+                'Transportasi',
+                'Hiburan',
+                'Pendidikan',
+                'Utilitas',
   ];
 
   void _addCategory() {

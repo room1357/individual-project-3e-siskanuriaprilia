@@ -5,7 +5,7 @@ class Expense {
   final double amount;
   final String category;
   final DateTime date;
-  final List<String> sharedWith; // 🔹 Shared Expenses
+  final List<String> sharedWith;
 
   Expense({
     required this.id,
@@ -14,7 +14,7 @@ class Expense {
     required this.amount,
     required this.category,
     required this.date,
-    this.sharedWith = const [], // default kosong
+    this.sharedWith = const [],
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {

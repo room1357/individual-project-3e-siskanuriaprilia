@@ -98,18 +98,6 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.bar_chart),
-            tooltip: 'Lihat Statistik',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => StatisticsScreen(expenses: expenses),
-                ),
-              );
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.upload_file),
             tooltip: 'Export Pengeluaran',
             onPressed: () {
@@ -161,9 +149,9 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                 'Semua',
                 'Makanan',
                 'Transportasi',
-                'Utilitas',
                 'Hiburan',
                 'Pendidikan',
+                'Utilitas',
               ].map((category) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),

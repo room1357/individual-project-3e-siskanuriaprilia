@@ -1,14 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../models/expense.dart';
 import 'profile_screen.dart';
 import 'login_screen.dart';
 import 'expense_screen.dart';
 import 'advance_expense_list_screen.dart';
 import 'setting_screen.dart';
+import 'statistics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  User user; // mutable supaya bisa diupdate
-  HomeScreen({super.key, required this.user});
+  final User user;
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -16,28 +20,56 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  final List<String> _titles = ['Home', 'Favorites', 'Cart', 'Profile'];
+  List<Expense> expenses = [];
+
+  final List<String> _titles = [
+    'Home',
+    'Expenses',
+    'Advanced Expenses',
+    'Statistik',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExpenses();
+  }
+
+  Future<void> _loadExpenses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? expenseData = prefs.getString('expenses');
+
+    if (expenseData != null) {
+      List<dynamic> decoded = jsonDecode(expenseData);
+      setState(() {
+        expenses = decoded.map((e) => Expense.fromJson(e)).toList();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    Widget _buildBody() {
+      switch (_currentIndex) {
+        case 1:
+          return const ExpenseScreen();
+        case 2:
+          return const AdvancedExpenseListScreen();
+        case 3:
+          return StatisticsScreen();
+        default:
+          return _buildHomeContent();
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_currentIndex]),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
       ),
+
+      // 🔹 Sidebar berisi hanya 3 menu (Profile, Settings, Logout)
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -56,7 +88,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     'Welcome ${widget.user.fullName}!',
                     style: const TextStyle(
-                        color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     widget.user.email,
@@ -65,11 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () => Navigator.pop(context),
-            ),
+
+            // 🔸 Profile
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
@@ -88,6 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
             ),
+
+            // 🔸 Settings
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
@@ -99,29 +133,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.money),
-              title: const Text('Expenses'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ExpenseScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.analytics),
-              title: const Text('Expenses Advanced'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AdvancedExpenseListScreen()),
-                );
-              },
-            ),
+
             const Divider(),
+
+            // 🔸 Logout
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
@@ -136,40 +151,44 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: List.generate(
-            8,
-            (index) => _buildProductCard(
-              'Product ${index + 1}',
-              Icons.shopping_bag,
-              Colors.primaries[index % Colors.primaries.length],
-            ),
-          ),
-        ),
+        child: _buildBody(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('FAB clicked!')));
-        },
-        child: const Icon(Icons.add_shopping_cart),
-      ),
+
+      // ❌ FloatingActionButton dihapus
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) async {
+          setState(() => _currentIndex = index);
+          if (index == 3) await _loadExpenses(); // refresh data sebelum buka statistik
+        },
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.money), label: 'Expenses'),
+          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Advanced'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Statistik'),
         ],
+      ),
+    );
+  }
+
+  // 🔹 Halaman Home
+  Widget _buildHomeContent() {
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      children: List.generate(
+        8,
+        (index) => _buildProductCard(
+          'Produk ${index + 1}',
+          Icons.shopping_bag,
+          Colors.primaries[index % Colors.primaries.length],
+        ),
       ),
     );
   }
@@ -186,8 +205,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Icon(icon, size: 48, color: color),
               const SizedBox(height: 12),
-              Text(title,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),

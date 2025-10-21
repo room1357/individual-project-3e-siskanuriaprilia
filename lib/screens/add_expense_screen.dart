@@ -18,43 +18,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   String _selectedCategory = 'Makanan';
   DateTime _selectedDate = DateTime.now();
 
-  final List<String> _categories = [
-    'Makanan',
-    'Transportasi',
-    'Utilitas',
-    'Hiburan',
-    'Pendidikan',
-  ];
+  final List<String> _categories = ExpenseManager.categories;
 
-  // 🔹 Daftar user untuk Shared Expenses
-  final List<String> _users = ['Siska', 'Budi', 'Ani', 'Rina'];
-  List<String> _selectedUsers = [];
 
-  Future<void> _submitData() async {
-    if (_titleController.text.isEmpty ||
-        _amountController.text.isEmpty ||
-        double.tryParse(_amountController.text) == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Harap isi semua field dengan benar")),
-      );
-      return;
-    }
-
-    final newExpense = Expense(
-      id: DateTime.now().toString(),
-      title: _titleController.text,
-      description: _descriptionController.text,
-      amount: double.parse(_amountController.text),
-      category: _selectedCategory,
-      date: _selectedDate,
-      sharedWith: _selectedUsers, // 🔹 Shared Expenses
-    );
-
-    widget.onAddExpense(newExpense);
-    Navigator.pop(context);
-  }
-
-  void _pickDate() async {
+  /// Fungsi untuk memilih tanggal
+  Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -65,6 +33,34 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       setState(() => _selectedDate = pickedDate);
     }
   }
+
+  Future<void> _submitData() async {
+  if (_titleController.text.isEmpty ||
+      _amountController.text.isEmpty ||
+      double.tryParse(_amountController.text) == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Harap isi semua field dengan benar")),
+    );
+    return;
+  }
+
+  final newExpense = Expense(
+    id: DateTime.now().toString(),
+    title: _titleController.text,
+    description: _descriptionController.text,
+    amount: double.parse(_amountController.text),
+    category: _selectedCategory,
+    date: _selectedDate,
+  );
+
+  // ✅ hanya kirim balik ke parent, tanpa addExpense di sini
+  widget.onAddExpense(newExpense);
+
+  // jangan simpan langsung ke ExpenseManager di sini
+  // supaya tidak dobel
+  Navigator.pop(context);
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +90,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                   .toList(),
               onChanged: (value) {
-                setState(() => _selectedCategory = value!);
+                if (value != null) {
+                  setState(() => _selectedCategory = value);
+                }
               },
             ),
             const SizedBox(height: 10),
@@ -107,28 +105,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Tanggal: ${_selectedDate.toLocal().toString().split(' ')[0]}'),
+                Text(
+                  'Tanggal: ${_selectedDate.toLocal().toString().split(' ')[0]}',
+                ),
                 TextButton(
                   onPressed: _pickDate,
                   child: const Text('Pilih Tanggal'),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            const Text('Bagikan dengan:'),
-            ..._users.map((user) => CheckboxListTile(
-                  title: Text(user),
-                  value: _selectedUsers.contains(user),
-                  onChanged: (val) {
-                    setState(() {
-                      if (val == true) {
-                        _selectedUsers.add(user);
-                      } else {
-                        _selectedUsers.remove(user);
-                      }
-                    });
-                  },
-                )),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitData,
@@ -138,7 +123,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               ),
               child: const Text(
                 'Simpan',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
           ],

@@ -127,22 +127,6 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            const Text('Bagikan dengan:'),
-            ...users.map((user) => CheckboxListTile(
-                  title: Text(user),
-                  value: selectedUsers.contains(user),
-                  onChanged: (val) {
-                    setState(() {
-                      if (val == true) {
-                        selectedUsers.add(user);
-                      } else {
-                        selectedUsers.remove(user);
-                      }
-                    });
-                  },
-                )),
-            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveExpense,
               style: ElevatedButton.styleFrom(
