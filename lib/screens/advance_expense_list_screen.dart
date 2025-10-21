@@ -8,6 +8,7 @@ import 'edit_expense_screen.dart';
 import 'category_expense.dart';
 import 'statistics_screen.dart';
 import 'export_screen.dart';
+import '../utils/expense_manager.dart';
 
 class AdvancedExpenseListScreen extends StatefulWidget {
   const AdvancedExpenseListScreen({super.key});
@@ -280,25 +281,28 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
-         foregroundColor: Colors.white,
+        foregroundColor: Colors.white,
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => AddExpenseScreen(
-                onAddExpense: (Expense expense) {
+                onAddExpense: (Expense expense) async {
+                  // Tambah ke ExpenseManager sekaligus SharedPreferences
+                  await ExpenseManager.addExpense(expense);
+
                   setState(() {
-                    expenses.add(expense);
+                    expenses.add(expense); // tetap update list lokal
                     _filterExpenses();
                   });
-                  _saveExpenses();
                 },
               ),
             ),
           );
         },
       ),
+
     );
   }
 

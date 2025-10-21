@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
+import '../utils/expense_manager.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   final Function(Expense) onAddExpense;
