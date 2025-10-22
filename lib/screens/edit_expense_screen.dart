@@ -55,18 +55,38 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   }
 
   void _saveExpense() {
-    final updatedExpense = Expense(
-      id: widget.expense.id,
-      title: titleController.text,
-      description: descriptionController.text,
-      category: selectedCategory,
-      amount: double.tryParse(amountController.text) ?? 0,
-      date: selectedDate,
-      sharedWith: selectedUsers,
-    );
+    // ✅ Konfirmasi sebelum menyimpan
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Simpan Perubahan'),
+        content: const Text('Apakah kamu yakin ingin merubah data pengeluaran ini?'),
+        actions: [
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Simpan', style: TextStyle(color: Colors.blue)),
+            onPressed: () {
+              final updatedExpense = Expense(
+                id: widget.expense.id,
+                title: titleController.text,
+                description: descriptionController.text,
+                category: selectedCategory,
+                amount: double.tryParse(amountController.text) ?? 0,
+                date: selectedDate,
+                sharedWith: selectedUsers,
+              );
 
-    widget.onUpdateExpense(updatedExpense);
-    Navigator.pop(context);
+              widget.onUpdateExpense(updatedExpense);
+              Navigator.pop(context); // Tutup dialog
+              Navigator.pop(context); // Kembali ke layar sebelumnya
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _pickDate() async {
@@ -83,7 +103,15 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Pengeluaran'),
+        // 🔹 Ganti panah default jadi "<"
+        leading: IconButton(
+           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Edit Pengeluaran',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
       ),
       body: Padding(

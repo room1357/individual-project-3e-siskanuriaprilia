@@ -152,12 +152,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      body: Padding(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)], // Gradien latar belakang
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         padding: const EdgeInsets.all(16.0),
         child: _buildBody(),
       ),
 
-      // ❌ FloatingActionButton dihapus
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) async {
@@ -183,31 +189,64 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
       children: List.generate(
-        8,
+        6,
         (index) => _buildProductCard(
           'Produk ${index + 1}',
-          Icons.shopping_bag,
+          _getProductIcon(index),
           Colors.primaries[index % Colors.primaries.length],
         ),
       ),
     );
   }
 
+  IconData _getProductIcon(int index) {
+    switch (index) {
+      case 0:
+        return Icons.shopping_cart; // Ikon keranjang belanja
+      case 1:
+        return Icons.local_grocery_store; // Ikon toko
+      case 2:
+        return Icons.fastfood; // Ikon makanan
+      case 3:
+        return Icons.local_drink; // Ikon minuman
+      case 4:
+        return Icons.laptop; // Ikon laptop
+      case 5:
+        return Icons.phone_android; // Ikon ponsel
+      default:
+        return Icons.category; // Ikon kategori default
+    }
+  }
+
   Widget _buildProductCard(String title, IconData icon, Color color) {
     return Card(
       elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // Rounded corners
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          // Action saat card ditekan
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$title tapped!')),
+          );
+        },
         child: Container(
           padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.7), color], // Gradien untuk card
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 48, color: color),
+              Icon(icon, size: 48, color: Colors.white),
               const SizedBox(height: 12),
               Text(
                 title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ],
           ),

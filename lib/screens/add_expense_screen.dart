@@ -20,7 +20,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   final List<String> _categories = ExpenseManager.categories;
 
-
   /// Fungsi untuk memilih tanggal
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
@@ -35,38 +34,64 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   Future<void> _submitData() async {
-  if (_titleController.text.isEmpty ||
-      _amountController.text.isEmpty ||
-      double.tryParse(_amountController.text) == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Harap isi semua field dengan benar")),
+    if (_titleController.text.isEmpty ||
+        _amountController.text.isEmpty ||
+        double.tryParse(_amountController.text) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Harap isi semua field dengan benar")),
+      );
+      return;
+    }
+
+    // 🔔 Konfirmasi sebelum menambah data
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text('Apakah kamu yakin ingin menambahkan pengeluaran ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(
+              'Ya',
+              style: TextStyle(color: Colors.blue),
+            ),
+          ),
+        ],
+      ),
     );
-    return;
+
+    if (confirm != true) return; // batal jika tidak konfirmasi
+
+    final newExpense = Expense(
+      id: DateTime.now().toString(),
+      title: _titleController.text,
+      description: _descriptionController.text,
+      amount: double.parse(_amountController.text),
+      category: _selectedCategory,
+      date: _selectedDate,
+    );
+
+    widget.onAddExpense(newExpense);
+    Navigator.pop(context);
   }
-
-  final newExpense = Expense(
-    id: DateTime.now().toString(),
-    title: _titleController.text,
-    description: _descriptionController.text,
-    amount: double.parse(_amountController.text),
-    category: _selectedCategory,
-    date: _selectedDate,
-  );
-
-  // ✅ hanya kirim balik ke parent, tanpa addExpense di sini
-  widget.onAddExpense(newExpense);
-
-  // jangan simpan langsung ke ExpenseManager di sini
-  // supaya tidak dobel
-  Navigator.pop(context);
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Pengeluaran'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Tambah Pengeluaran',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
       ),
       body: Padding(

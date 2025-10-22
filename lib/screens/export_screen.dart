@@ -13,23 +13,26 @@ class ExportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-   return Scaffold(
-  backgroundColor: const Color(0xFFF7F2FA),
-  appBar: AppBar(
-    title: const Text(
-      'Export Data Pengeluaran',
-      style: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.normal, // sama seperti di Settings
-        fontSize: 20,
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F2FA),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Export Data Pengeluaran',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.normal,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        centerTitle: false,
       ),
-    ),
-    backgroundColor: Colors.blue, // sama dengan Settings
-    foregroundColor: Colors.white, // warna icon & teks
-    elevation: 2, // sedikit bayangan lembut
-    centerTitle: false,
-  ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -66,7 +69,7 @@ class ExportScreen extends StatelessWidget {
                               color: Colors.black87),
                         ),
                       ),
-                      Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                      Icon(Icons.arrow_forward_ios, color: Colors.grey), // tetap panah di kanan card
                     ],
                   ),
                 ),
