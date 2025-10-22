@@ -8,9 +8,21 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: Colors.blue, // diubah dari ungu menjadi biru
+        title: const Text(
+          'Settings',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
+        elevation: 2,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: ListView(
         children: [
