@@ -79,13 +79,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, 
-      appBar: AppBar(
-        title: const Text('Register'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        return Scaffold(
+          backgroundColor: Colors.white, 
+        appBar: AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
       ),
+      title: const Text('Register'),
+      backgroundColor: Colors.blue,
+      foregroundColor: Colors.white,
+    ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
