@@ -8,15 +8,15 @@ Aplikasi **Expense Manager** ini dibuat sebagai tugas mata kuliah **Pemrograman 
 **Nama:** Siska Nuri Aprilia  
 **NIM:** 2341760038
 **Kelas:** SIB-3E  
-...
-📖 Deskripsi Project
+
+---
+## 📖 Deskripsi Project
 Aplikasi Expense Manager merupakan aplikasi mobile berbasis Flutter yang dirancang untuk membantu pengguna dalam mengelola keuangan pribadi secara sederhana dan efisien. Melalui aplikasi ini, pengguna dapat mencatat dan memantau pengeluaran harian, melihat riwayat transaksi, serta menampilkan statistik keuangan dalam bentuk grafik untuk memahami pola penggunaan uang.
 
 Fitur pencatatan pemasukan (income tracking) masih dalam tahap pengembangan, namun aplikasi sudah dapat digunakan untuk mencatat dan menganalisis pengeluaran secara fungsional.
 Aplikasi ini sangat cocok digunakan sebagai projek latihan Flutter untuk memahami konsep state management, CRUD data, navigasi antarhalaman, dan penyimpanan lokal.
 
 ---
-
 ## Fitur Aplikasi
 
 | Fitur / Screen | Screenshot | Penjelasan |
