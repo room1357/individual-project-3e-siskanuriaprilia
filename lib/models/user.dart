@@ -11,13 +11,3 @@ class User {
     required this.password,
   });
 }
-
-// List global user
-List<User> users = [
-  User(
-    fullName: 'Siska Nuri Aprilia',
-    email: 'aprilias878@gmail.com',
-    username: 'aprilias878',
-    password: '123',
-  ),
-];

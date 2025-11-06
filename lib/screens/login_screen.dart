@@ -3,6 +3,8 @@ import '../models/user.dart';
 import '../utils/user_manager.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   bool _obscurePassword = true;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -39,65 +42,78 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  void _login() {
+  void _login() async {
     String email = emailController.text.trim();
     String password = passwordController.text;
 
-    User? matchedUser = UserManager.login(email, password);
-
-    if (matchedUser != null) {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 12),
-              Text('Selamat datang, ${matchedUser.fullName}!'),
-            ],
-          ),
-          backgroundColor: Colors.green.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
+        const SnackBar(content: Text('Email dan password wajib diisi')),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(user: matchedUser),
-        ),
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      var url = Uri.parse('http://192.168.1.14:3000/login');
+      var response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
       );
-    } else {
-      if (UserManager.emailExists(email)) {
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      var data = jsonDecode(response.body);
+
+      setState(() => isLoading = false);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final user = User(
+          fullName: data['data']['fullName'],
+          username: data['data']['username'] ?? data['data']['email'].split('@')[0],
+          email: data['data']['email'],
+          password: data['data']['password'],
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.error, color: Colors.white),
-                SizedBox(width: 12),
-                Text('Password salah!'),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Text('Selamat datang, ${user.fullName}!'),
               ],
             ),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: Colors.green.shade600,
           ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.warning, color: Colors.white),
-                SizedBox(width: 12),
-                Expanded(child: Text('User belum terdaftar, silakan register dulu!')),
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(data['message'] ?? 'Login gagal')),
               ],
             ),
-            backgroundColor: Colors.orange.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: Colors.red.shade600,
           ),
         );
       }
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
@@ -147,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       ),
                     ),
                     const SizedBox(height: 30),
-                    
+
                     // Title
                     const Text(
                       'Welcome Back!',
@@ -195,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ),
                             ),
                             const SizedBox(height: 20),
-                            
+
                             // Password Field
                             TextField(
                               controller: passwordController,
@@ -246,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ],
                               ),
                               child: ElevatedButton(
-                                onPressed: _login,
+                                onPressed: isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
@@ -254,15 +270,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
-                                child: const Text(
-                                  'LOGIN',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 1.2,
-                                  ),
-                                ),
+                                child: isLoading
+                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    : const Text(
+                                        'LOGIN',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 1.2,
+                                        ),
+                                      ),
                               ),
                             ),
                           ],
