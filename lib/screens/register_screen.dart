@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../utils/user_manager.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -44,97 +47,68 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  void _register() {
-    final fullName = _fullNameController.text.trim();
-    final email = _emailController.text.trim();
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
+  void _register() async {
+  final fullName = _fullNameController.text.trim();
+  final email = _emailController.text.trim();
+  final username = _usernameController.text.trim();
+  final password = _passwordController.text;
+  final confirmPassword = _confirmPasswordController.text;
 
-    if (fullName.isEmpty || email.isEmpty || username.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.warning, color: Colors.white),
-              SizedBox(width: 12),
-              Expanded(child: Text('Semua kolom harus diisi!')),
-            ],
-          ),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.error, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Password tidak cocok!'),
-            ],
-          ),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-
-    if (UserManager.usernameExists(username)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.person_off, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Username sudah digunakan!'),
-            ],
-          ),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-
-    if (UserManager.emailExists(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.email_outlined, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Email sudah digunakan!'),
-            ],
-          ),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-
-    // Tambahkan user baru
-    UserManager.addUser(User(
-      fullName: fullName,
-      email: email,
-      username: username,
-      password: password,
-    ));
-
+  if (fullName.isEmpty || email.isEmpty || username.isEmpty || password.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(
           children: [
+            Icon(Icons.warning, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(child: Text('Semua kolom harus diisi!')),
+          ],
+        ),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+    return;
+  }
+
+  if (password != confirmPassword) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.error, color: Colors.white),
+            SizedBox(width: 12),
+            Text('Password tidak cocok!'),
+          ],
+        ),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+    return;
+  }
+
+  // Panggil API Node.js untuk register
+  final url = Uri.parse('http://192.168.1.14:3000/register');
+  final response = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "fullName": fullName,
+      "email": email,
+      "password": password,
+    }),
+  );
+
+  final result = jsonDecode(response.body);
+
+  if (response.statusCode == 200 && result['success'] == true) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
             Icon(Icons.check_circle, color: Colors.white),
             SizedBox(width: 12),
             Text('Registrasi berhasil! Silakan login.'),
@@ -145,9 +119,25 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
-
-    Navigator.pop(context);
+    Navigator.pop(context); // kembali ke halaman login
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(result['message'] ?? 'Registrasi gagal')),
+          ],
+        ),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
+}
+
 
   Widget _buildTextField({
     required TextEditingController controller,
